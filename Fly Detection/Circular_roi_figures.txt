@@ -1,0 +1,282 @@
+%%This code plots
+
+clear
+close all
+%%Import the detectins sheet
+[det,path]=uigetfile('*.csv',"Choose the distance file");
+cd(path);
+data=readtable(det);
+%%plots for each arena
+ananame=inputdlg("What is the condition given?");
+right=inputdlg("What is the right droplet",'');
+left=inputdlg("What is the left droplet?:");
+num=inputdlg("How many boxes to be summarised: ");
+switching=inputdlg("Is switching performed? If yes press 1 else 0");
+switching=str2num(switching{1});
+num=str2num(num{1});
+
+Box1_max=max([max(data.Detected_Fly11),max(data.Detected_Fly12)]);
+Box2_max=max([max(data.Detected_Fly21),max(data.Detected_Fly22)]);
+Box3_max=max([max(data.Detected_Fly31),max(data.Detected_Fly32)]);
+Box4_max=max([max(data.Detected_Fly41),max(data.Detected_Fly42)]);
+Box5_max=max([max(data.Detected_Fly51),max(data.Detected_Fly52)]);
+Box6_max=max([max(data.Detected_Fly61),max(data.Detected_Fly62)]);
+if switching==1
+    data.PI_Box1=(data.Detected_Fly12-data.Detected_Fly11)/Box1_max;
+    data.PI_Box2=(data.Detected_Fly21-data.Detected_Fly22)/Box2_max;
+    data.PI_Box3=(data.Detected_Fly32-data.Detected_Fly31)/Box3_max;
+    data.PI_Box4=(data.Detected_Fly41-data.Detected_Fly42)/Box4_max;
+    data.PI_Box5=(data.Detected_Fly52-data.Detected_Fly51)/Box5_max;
+    data.PI_Box6=(data.Detected_Fly61-data.Detected_Fly62)/Box6_max;
+end
+if switching==0
+    data.PI_Box1=(data.Detected_Fly12-data.Detected_Fly11)/Box1_max;
+    data.PI_Box2=(data.Detected_Fly22-data.Detected_Fly21)/Box2_max;
+    data.PI_Box3=(data.Detected_Fly32-data.Detected_Fly31)/Box3_max;
+    data.PI_Box4=(data.Detected_Fly42-data.Detected_Fly41)/Box4_max;
+    data.PI_Box5=(data.Detected_Fly52-data.Detected_Fly51)/Box5_max;
+    data.PI_Box6=(data.Detected_Fly62-data.Detected_Fly61)/Box6_max;
+end
+data.Mean_PI=(data.PI_Box1+data.PI_Box2+data.PI_Box3+data.PI_Box4+data.PI_Box5+data.PI_Box6)./6;
+data.SD_PI=sqrt(((data.PI_Box1-data.Mean_PI).^2 ...
+    +(data.PI_Box2-data.Mean_PI).^2 ...
+    +(data.PI_Box3-data.Mean_PI).^2 ...
+    +(data.PI_Box4-data.Mean_PI).^2 ...
+    +(data.PI_Box5-data.Mean_PI).^2 ...
+    +(data.PI_Box6-data.Mean_PI).^2)/6);
+    if switching==1
+        data.Sampling_right=(data.Detected_Fly12+data.Detected_Fly21+data.Detected_Fly32+data.Detected_Fly41+data.Detected_Fly52+data.Detected_Fly61)./6;
+        data.Sampling_left=(data.Detected_Fly11+data.Detected_Fly22+data.Detected_Fly31+data.Detected_Fly42+data.Detected_Fly51+data.Detected_Fly62)./6;
+    end
+    if switching==0
+        data.Sampling_right=(data.Detected_Fly12+data.Detected_Fly22+data.Detected_Fly32+data.Detected_Fly42+data.Detected_Fly52+data.Detected_Fly62)./6;
+        data.Sampling_left=(data.Detected_Fly11+data.Detected_Fly21+data.Detected_Fly31+data.Detected_Fly41+data.Detected_Fly51+data.Detected_Fly61)./6;
+    end
+
+
+data=table2dataset(data);
+cd('E:\FlyBox\FlyBox-MATLABcode');
+%Box no 1
+plot(data(:,2),data(:,3),'y',data(:,2),data(:,4),'b');
+hold off;
+ylabel("Number of flies",'FontSize',7 );
+xlabel("Time in Minutes",'FontSize',7);
+ylim([0,max([Box6_max,Box5_max,Box4_max,Box3_max,Box2_max,Box1_max])]);
+title("Box 1");
+if switching==1
+    legend({cell2mat(left),cell2mat(right)});
+end
+if switching==0
+    legend({cell2mat(right),cell2mat(left)});
+end
+cd(path);
+fig=gcf();
+exportgraphics(fig,'Box1.jpeg','Resolution',300);
+close;
+
+%Box no 2
+plot(data(:,2),data(:,6),'y',data(:,2),data(:,5),'b');
+hold off;
+ylabel("Number of flies",'FontSize',7 );
+xlabel("Time in Minutes",'FontSize',7);
+ylim([0,max([Box6_max,Box5_max,Box4_max,Box3_max,Box2_max,Box1_max])]);
+title("Box 2");
+if switching==1
+    legend({cell2mat(left),cell2mat(right)});
+end
+if switching==0
+    legend({cell2mat(right),cell2mat(left)});
+end
+cd(path);
+fig=gcf();
+exportgraphics(fig,'Box2.jpeg','Resolution',300);
+close;
+
+%Box no 3
+plot(data(:,2),data(:,7),'y',data(:,2),data(:,8),'b');
+hold off;
+ylabel("Number of flies",'FontSize',7 );
+xlabel("Time in Minutes",'FontSize',7);
+ylim([0,max([Box6_max,Box5_max,Box4_max,Box3_max,Box2_max,Box1_max])]);
+title("Box 3");
+if switching==1
+    legend({cell2mat(left),cell2mat(right)});
+end
+if switching==0
+    legend({cell2mat(right),cell2mat(left)});
+end
+cd(path);
+fig=gcf();
+exportgraphics(fig,'Box3.jpeg','Resolution',300);
+close;
+
+%Box no 4
+plot(data(:,2),data(:,10),'y',data(:,2),data(:,9),'b');
+hold off;
+ylabel("Number of flies",'FontSize',7 );
+xlabel("Time in Minutes",'FontSize',7);
+ylim([0,max([Box6_max,Box5_max,Box4_max,Box3_max,Box2_max,Box1_max])]);
+title("Box 4");
+if switching==1
+    legend({cell2mat(left),cell2mat(right)});
+end
+if switching==0
+    legend({cell2mat(right),cell2mat(left)});
+end
+cd(path);
+fig=gcf();
+exportgraphics(fig,'Box4.jpeg','Resolution',300);
+close;
+
+%Box no 5
+plot(data(:,2),data(:,11),'y',data(:,2),data(:,12),'b');
+hold off;
+ylabel("Number of flies",'FontSize',7 );
+xlabel("Time in Minutes",'FontSize',7);
+ylim([0,max([Box6_max,Box5_max,Box4_max,Box3_max,Box2_max,Box1_max])]);
+title("Box 5");
+if switching==1
+    legend({cell2mat(left),cell2mat(right)});
+end
+if switching==0
+    legend({cell2mat(right),cell2mat(left)});
+end
+cd(path);
+fig=gcf();
+exportgraphics(fig,'Box5.jpeg','Resolution',300);
+close;
+
+%Box no 6
+plot(data(:,2),data(:,14),'y',data(:,2),data(:,13),'b');
+hold off;
+ylabel("Number of flies",'FontSize',7 );
+xlabel("Time in Minutes",'FontSize',7);
+ylim([0,max([Box6_max,Box5_max,Box4_max,Box3_max,Box2_max,Box1_max])]);
+title("Box 6");
+if switching==1
+    legend({cell2mat(left),cell2mat(right)});
+end
+if switching==0
+    legend({cell2mat(right),cell2mat(left)});
+end
+cd(path);
+fig=gcf();
+exportgraphics(fig,'Box6.jpeg','Resolution',300);
+close;
+
+%Creating summary figures
+subplot(2,3,1)
+plot(data(:,2),data(:,15))
+ax=gca;
+ax.FontSize=6;
+ylabel("Preference Index",'FontSize',7);
+xlabel("Time in Minutes",'FontSize',7);
+ylim([-1,1]);
+yline(0);
+text(10,0.9,right,"Color",'k','FontSize',5);
+text(10,-0.9,left,"Color",'k','FontSize',5);
+text((max(data.Time_min_)-0.15*max(data.Time_min_)),0.9,"Box 1",'FontSize',5);
+title(ananame,"FontSize",7);
+
+subplot(2,3,2)
+plot(data(:,2),data(:,16))
+ax=gca;
+ax.FontSize=6;
+ylabel("Preference Index",'FontSize',7);
+xlabel("Time in Minutes",'FontSize',7);
+ylim([-1,1]);
+yline(0);
+text(10,0.9,right,"Color",'k','FontSize',5);
+text(10,-0.9,left,"Color",'k','FontSize',5);
+text((max(data.Time_min_)-0.15*max(data.Time_min_)),0.9,"Box 2",'FontSize',5);
+title(ananame,"FontSize",7);
+
+subplot(2,3,3)
+plot(data(:,2),data(:,17))
+ax=gca;
+ax.FontSize=6;
+ylabel("Preference Index",'FontSize',7);
+xlabel("Time in Minutes",'FontSize',7);
+ylim([-1,1]);
+yline(0);
+text(10,0.9,right,"Color",'k','FontSize',5);
+text(10,-0.9,left,"Color",'k','FontSize',5);
+text((max(data.Time_min_)-0.15*max(data.Time_min_)),0.9,"Box 3",'FontSize',5);
+title(ananame,"FontSize",7);
+
+subplot(2,3,4)
+plot(data(:,2),data(:,18))
+ax=gca;
+ax.FontSize=7;
+ylabel("Preference Index",'FontSize',7);
+xlabel("Time in Minutes",'FontSize',7);
+ylim([-1,1]);
+yline(0);
+text(10,0.9,right,"Color",'k','FontSize',5);
+text(10,-0.9,left,"Color",'k','FontSize',5);
+text((max(data.Time_min_)-0.15*max(data.Time_min_)),0.9,"Box 4",'FontSize',5);
+title(ananame,"FontSize",7);
+
+subplot(2,3,5)
+plot(data(:,2),data(:,19))
+ax=gca;
+ax.FontSize=6;
+ylabel("Preference Index",'FontSize',7);
+xlabel("Time in Minutes",'FontSize',7);
+ylim([-1,1]);
+yline(0);
+text(10,0.9,right,"Color",'k','FontSize',5);
+text(10,-0.9,left,"Color",'k','FontSize',5);
+text((max(data.Time_min_)-0.15*max(data.Time_min_)),0.9,"Box 5",'FontSize',5);
+title(ananame,"FontSize",7);
+
+subplot(2,3,6)
+plot(data(:,2),data(:,20))
+ax=gca;
+ax.FontSize=6;
+ylabel("Preference Index",'FontSize',7);
+xlabel("Time in Minutes",'FontSize',7);
+ylim([-1,1]);
+yline(0);
+text(10,0.9,right,"Color",'k','FontSize',5);
+text(10,-0.9,left,"Color",'k','FontSize',5);
+text((max(data.Time_min_)-0.15*max(data.Time_min_)),0.9,"Box 6",'FontSize',5);
+title(ananame,"FontSize",7);
+cd(path);
+fig=gcf();
+exportgraphics(fig,'Boxes_PI.jpeg','Resolution',300);
+close;
+
+%Sampling figures
+subplot(1,2,1)
+plot(data(:,2),data.Sampling_right)
+ylabel("Number of flies detected");
+xlabel("Time in Minutes");
+ylim([0,max([Box6_max,Box5_max,Box4_max,Box3_max,Box2_max,Box1_max])]);
+title(right);
+
+subplot(1,2,2)
+plot(data(:,2),data.Sampling_left)
+ylabel("Number of flies detected");
+xlabel("Time in Minutes");
+ylim([0,max([Box6_max,Box5_max,Box4_max,Box3_max,Box2_max,Box1_max])]);
+title(left);
+cd(path);
+fig=gcf();
+exportgraphics(fig,'Sampling Figure.jpeg','Resolution',300);
+close;
+
+%Mean preference index figure
+cd('E:\FlyBox\FlyBox-MATLABcode');
+shadedErrorBar(data.Time_min_,data.Mean_PI,data.SD_PI);
+ylabel("Preference Index",'FontSize',14);
+xlabel("Time in Minutes",'FontSize',14);
+ylim([-1,1]);
+yline(0);
+text(10,0.85,right,"Color",'k','FontSize',14);
+text(10,-0.85,left,"Color",'k','FontSize',14);
+title(ananame);
+cd(path);
+fig=gcf();
+exportgraphics(fig,'Preference_Index.jpeg','Resolution',300);
+close;
