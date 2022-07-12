@@ -1,0 +1,357 @@
+THE CODE IS WRITTEN IN MATLAB R2021B AND DESCRIBED USING A TXT FILE HERE
+
+
+
+%%--- Preliminary : Choose a Video to analyze
+clear
+close all
+[FileName,PathName,FilterIndex] = uigetfile({'*.avi'},'Choose a film to analyze:')
+
+v=VideoReader(fullfile(PathName,FileName));
+
+debut=inputdlg('FROM which second TO which second do you want to analyze ? FROM :');
+debut=str2num(debut{1});
+
+fin=inputdlg('FROM which second TO which second do you want to analyze ? TO   :');
+fin=str2num(fin{1});
+
+tim = linspace(debut,fin,100);
+
+v.CurrentTime=debut;
+foldername=char(inputdlg('Input the name of the analysis folder:'));
+% --- Extract Video Framerate to keep only ONE image per second
+FR = round(v.FrameRate);
+
+
+%% --- Step1: Threshold the first frame to extract droplets
+IDX = 1;
+
+A=readFrame(v);
+h_im = imshow(A,[]);
+
+B = rgb2hsv(A);
+C = B(:,:,2);
+F = imclearborder(bwareaopen(C>0.5,50));
+s = regionprops(F,'Centroid');
+c = round(cat(1,s.Centroid));
+
+% --- Step1.2: Calculate the droplet radius 
+Radius = 10;
+[columnsInImage,rowsInImage] = meshgrid(1:size(A,2), 1:size(A,1));
+M=zeros(size(A,1),size(A,2)); %creating a zero matrix of frame dimension
+
+for i=1:size(c,1)
+    centerX=c(i,1);
+    centerY=c(i,2);
+    radius = 30; % originally this was 30
+    circlePixels = (rowsInImage - centerY).^2 + (columnsInImage - centerX).^2 <= radius.^2;
+    M=M+circlePixels;
+end
+
+
+% --- Step 1.3: User select exactly 6 Boxes (arenas)
+imshow(A,[]);
+COND={};
+LM={};
+RM={};
+% --- --- Box n°1
+h=imrect();
+position = wait(h);
+cond=inputdlg('Which condition (Box) ?');
+COND{1}=cond{1};
+lm = inputdlg('Left most drop contains ?');
+LM{1}=strcat(COND{1},'_',lm{1});
+rm = inputdlg('Right most drop contains ?');
+RM{1}=strcat(COND{1},'_',rm{1});
+b1 = createMask(h);
+a = regionprops(logical(b1.*M),'Centroid');
+if (numel(a)==2)
+b1g1 = a(1).Centroid;
+b1g2 = a(2).Centroid;
+c11=createMask(drawcircle('Center',[b1g1(1),b1g1(2)],'Radius',25,'Stripecolor','green'));
+c12=createMask(drawcircle('Center',[b1g2(1),b1g2(2)],'Radius',25,'Stripecolor','green'));
+hold on;
+plot(b1g1(1),b1g1(2),'or','LineWidth',20);
+plot(b1g2(1),b1g2(2),'ob','LineWidth',20);
+p1=h.getPosition;
+end
+
+% --- --- Box n°2
+h=imrect();
+position = wait(h);
+cond=inputdlg('Which conditions ?');
+COND{2}=cond{1};
+lm = inputdlg('Left most drop contains ?');
+LM{2}=strcat(COND{2},'_',lm{1});
+rm = inputdlg('Right most drop contains ?');
+RM{2}=strcat(COND{2},'_',rm{1});
+b2 = createMask(h);
+a = regionprops(logical(b2.*M),'Centroid');
+if (numel(a)==2)
+b2g1 = a(1).Centroid;
+b2g2 = a(2).Centroid;
+c21=createMask(drawcircle('Center',[b2g1(1),b2g1(2)],'Radius',25,'Stripecolor','green'));
+c22=createMask(drawcircle('Center',[b2g2(1),b2g2(2)],'Radius',25,'Stripecolor','green'));
+hold on;
+plot(b2g1(1),b2g1(2),'or','LineWidth',20);
+plot(b2g2(1),b2g2(2),'ob','LineWidth',20);
+p2=h.getPosition;
+end
+
+% --- --- Box n°3
+h=imrect();
+position = wait(h);
+cond=inputdlg('Which conditions ?');
+COND{3}=cond{1};
+lm = inputdlg('Left most drop contains ?');
+LM{3}=strcat(COND{3},'_',lm{1});
+rm = inputdlg('Right most drop contains ?');
+RM{3}=strcat(COND{3},'_',rm{1});
+b3 = createMask(h);
+a = regionprops(logical(b3.*M),'Centroid');
+if (numel(a)==2)
+b3g1 = a(1).Centroid;
+b3g2 = a(2).Centroid;
+c31=createMask(drawcircle('Center',[b3g1(1),b3g1(2)],'Radius',25,'Stripecolor','green'));
+c32=createMask(drawcircle('Center',[b3g2(1),b3g2(2)],'Radius',25,'Stripecolor','green'));
+hold on;
+plot(b3g1(1),b3g1(2),'or','LineWidth',20);
+plot(b3g2(1),b3g2(2),'ob','LineWidth',20);
+p3=h.getPosition;
+end
+
+% --- --- Box n°4
+h=imrect();
+position = wait(h);
+cond=inputdlg('Which conditions ?');
+COND{4}=cond{1};
+lm = inputdlg('Left most drop contains ?');
+LM{4}=strcat(COND{4},'_',lm{1});
+rm = inputdlg('Right most drop contains ?');
+RM{4}=strcat(COND{4},'_',rm{1});
+b4 = createMask(h);
+a = regionprops(logical(b4.*M),'Centroid');
+if (numel(a)==2)
+b4g1 = a(1).Centroid;
+b4g2 = a(2).Centroid;
+c41=createMask(drawcircle('Center',[b4g1(1),b4g1(2)],'Radius',25,'Stripecolor','green'));
+c42=createMask(drawcircle('Center',[b4g2(1),b4g2(2)],'Radius',25,'Stripecolor','green'));
+hold on;
+plot(b4g1(1),b4g1(2),'or','LineWidth',20);
+plot(b4g2(1),b4g2(2),'ob','LineWidth',20);
+p4=h.getPosition;
+end
+
+% --- --- Box n°5
+h=imrect();
+position = wait(h);
+cond=inputdlg('Which conditions ?');
+COND{5}=cond{1};
+lm = inputdlg('Left most drop contains ?');
+LM{5}=strcat(COND{5},'_',lm{1});
+rm = inputdlg('Right most drop contains ?');
+RM{5}=strcat(COND{5},'_',rm{1});
+b5 = createMask(h);
+a = regionprops(logical(b5.*M),'Centroid');
+if (numel(a)==2)
+b5g1 = a(1).Centroid;
+b5g2 = a(2).Centroid;
+c51=createMask(drawcircle('Center',[b5g1(1),b5g1(2)],'Radius',25,'Stripecolor','green'));
+c52=createMask(drawcircle('Center',[b5g2(1),b5g2(2)],'Radius',25,'Stripecolor','green'));
+hold on;
+plot(b5g1(1),b5g1(2),'or','LineWidth',20);
+plot(b5g2(1),b5g2(2),'ob','LineWidth',20);
+p5=h.getPosition;
+end
+
+% --- --- Box n°6
+h=imrect();
+position = wait(h);
+cond=inputdlg('Which conditions ?');
+COND{6}=cond{1};
+lm = inputdlg('Left most drop contains ?');
+LM{6}=strcat(COND{6},'_',lm{1});
+rm = inputdlg('Right most drop contains ?');
+RM{6}=strcat(COND{6},'_',rm{1});
+b6 = createMask(h);
+a = regionprops(logical(b6.*M),'Centroid');
+if (numel(a)==2)
+b6g1 = a(1).Centroid;
+b6g2 = a(2).Centroid;
+c61=createMask(drawcircle('Center',[b6g1(1),b5g2(2)],'Radius',25,'Stripecolor','green'));
+c62=createMask(drawcircle('Center',[b6g2(1),b5g2(2)],'Radius',25,'Stripecolor','green'));
+hold on;
+plot(b6g1(1),b6g1(2),'or','LineWidth',20);
+plot(b6g2(1),b6g2(2),'ob','LineWidth',20);
+p6=h.getPosition;
+end
+
+
+
+%% --- Step 2: Acquiring statistics for every frames within every boxes
+
+GOUTTE = F; 
+IDX=1;
+frame=[];time=[]; %frame and time information
+while (hasFrame(v) && v.CurrentTime<=fin)
+    
+    A=readFrame(v);
+    G=imgaussfilt(A(:,:,1),2)-imgaussfilt(A(:,:,1),1); %
+    
+    cla;
+    imshow(A,[]);
+    drawnow;
+    hold on;
+    
+    % --- Box n°1
+    image11 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c11)); 
+    if (sum(sum(image11)))==0
+        image11 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c11));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image11,'Centroid');
+    c=cat(1,s.Centroid);
+	fly11(IDX)=size(c,1);
+    if(fly11(IDX)~=0)
+    plot(c(:,1),c(:,2),'.r');
+    end
+    image12 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c12)); 
+    if (sum(sum(image12)))==0
+        image12 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c12));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image12,'Centroid');
+    c=cat(1,s.Centroid);
+	fly12(IDX)=size(c,1);
+    if(fly12(IDX)~=0)
+    plot(c(:,1),c(:,2),'.r');
+    end
+
+    % --- Box n°2
+    image21 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c21)); 
+    if (sum(sum(image21)))==0
+        image21 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c21));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image21,'Centroid');
+    c=cat(1,s.Centroid);
+	fly21(IDX)=size(c,1);
+    if(fly21(IDX)~=0)
+    plot(c(:,1),c(:,2),'.g');
+    end
+    image22 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c22)); 
+    if (sum(sum(image12)))==0
+        image22 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c22));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image22,'Centroid');
+    c=cat(1,s.Centroid);
+	fly22(IDX)=size(c,1);
+    if(fly22(IDX)~=0)
+    plot(c(:,1),c(:,2),'.g');
+    end
+
+    % --- Box n°3
+    image31 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c31)); 
+    if (sum(sum(image31)))==0
+        image31 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c31));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image31,'Centroid');
+    c=cat(1,s.Centroid);
+	fly31(IDX)=size(c,1);
+    if(fly31(IDX)~=0)
+    plot(c(:,1),c(:,2),'.m');
+    end
+    image32 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c12)); 
+    if (sum(sum(image32)))==0
+        image32 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c32));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image32,'Centroid');
+    c=cat(1,s.Centroid);
+	fly32(IDX)=size(c,1);
+    if(fly32(IDX)~=0)
+    plot(c(:,1),c(:,2),'.m');
+    end
+
+    % --- Box n°4
+    image41 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c41)); 
+    if (sum(sum(image41)))==0
+        image41 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c41));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image41,'Centroid');
+    c=cat(1,s.Centroid);
+	fly41(IDX)=size(c,1);
+    if(fly41(IDX)~=0)
+    plot(c(:,1),c(:,2),'.w');
+    end
+    image42 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c42)); 
+    if (sum(sum(image42)))==0
+        image42 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c42));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image42,'Centroid');
+    c=cat(1,s.Centroid);
+	fly42(IDX)=size(c,1);
+    if(fly42(IDX)~=0)
+    plot(c(:,1),c(:,2),'.w');
+    end
+
+    % --- Box n°5
+    image51 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c51)); 
+    if (sum(sum(image11)))==0
+        image51 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c51));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image51,'Centroid');
+    c=cat(1,s.Centroid);
+	fly51(IDX)=size(c,1);
+    if(fly51(IDX)~=0)
+    plot(c(:,1),c(:,2),'.c');
+    end
+    image52 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c52)); 
+    if (sum(sum(image52)))==0
+        image52 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c52));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image52,'Centroid');
+    c=cat(1,s.Centroid);
+	fly52(IDX)=size(c,1);
+    if(fly52(IDX)~=0)
+    plot(c(:,1),c(:,2),'.c');
+    end
+    
+    % --- Box n°6
+    image61 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c61)); 
+    if (sum(sum(image61)))==0
+        image61 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c61));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image61,'Centroid');
+    c=cat(1,s.Centroid);
+	fly61(IDX)=size(c,1);
+    if(fly61(IDX)~=0)
+    plot(c(:,1),c(:,2),'.y');
+    end
+    image62 = logical(double(G>mean2(G)+7.*std2(G)).*double(~GOUTTE).*double(c62)); 
+    if (sum(sum(image62)))==0
+        image62 = logical(double(G>mean2(G)+9.*std2(G)).*double(~GOUTTE).*double(c62));
+    end % save this image right here and compare it with flybox paper and your video and remove the for loop. better would be if it is run in a separate code
+    s=regionprops(image62,'Centroid');
+    c=cat(1,s.Centroid);
+	fly62(IDX)=size(c,1);
+    if(fly62(IDX)~=0)
+    plot(c(:,1),c(:,2),'.y');
+    end
+    
+    drawnow;
+    frame(IDX)=IDX;
+    time(IDX)= IDX*0.0833;
+    IDX=IDX+1;
+    IDX
+end
+
+cd(PathName)
+mkdir(foldername)
+cd(foldername)
+F = array2table([frame' time' fly11' fly12' fly21' fly22' fly31' fly32' fly41' fly42' fly51' fly52' fly61' fly62']);
+F.Properties.VariableNames={'Frames','Time(min)','Detected_Fly11','Detected_Fly12','Detected_Fly21','Detected_Fly22','Detected_Fly31','Detected_Fly32','Detected_Fly41','Detected_Fly42','Detected_Fly51','Detected_Fly52','Detected_Fly61','Detected_Fly62'}
+filename=strcat('Detections_',strrep(FileName,'.avi',''),'___',num2str(debut),'_',num2str(fin),'.csv')
+writetable(F,filename);
+
+%fil2e has been saved in ....
+
+
+strcat('File has been saved into:',{' '},fullfile(pwd,foldername),'\')
+
